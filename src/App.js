@@ -1,24 +1,68 @@
-import React, { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Main from "./Main";
 import VotePage from "./components/VotePage";
 import ThankYouForm from "./components/ThankYouForm";
+import ElectionHold from "./components/ElectionHold"; 
+
+import { supabase } from "./components/client";
 
 function App() {
-  const [authType, setAuthType] = useState(null); // 'admin' or 'user'
+  const [authType, setAuthType] = useState(null); 
+  const [redirectTo, setRedirectTo] = useState(null); 
+  const [isLoading, setIsLoading] = useState(true); 
 
-  const handleLogout = () => {
-    console.log("Logging out..."); // Log to confirm logout triggered
-    setAuthType(null); // Clear auth type to log out
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuthType(null);
   };
+  
 
-  console.log("Current authType:", authType); // Logs current auth state on each render
+  useEffect(() => {
+    const checkUserAndTimerState = async () => {
+      if (authType === "user") {
+        try {
+          const { data: userData, error: userError } = await supabase.auth.getUser();
+          if (userError) {
+            setIsLoading(false);
+            return;
+          }
+
+          if (userData) {
+            const { data: timerData, error: timerError } = await supabase
+              .from("timerState")
+              .select("isRunning")
+              .eq("id", 1)
+              .single();
+
+            if (timerError) {
+              setIsLoading(false);
+              return;
+            }
+
+            if (timerData?.isRunning === 0) {
+              setRedirectTo("/election-hold");
+            } else if (timerData?.isRunning === 1) {
+              setRedirectTo("/vote");
+            }
+
+            setIsLoading(false);
+          }
+        } catch (err) {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    checkUserAndTimerState(); 
+  }, [authType]); 
+
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
 
   return (
     <Router>
@@ -29,11 +73,11 @@ function App() {
             element={
               authType ? (
                 <Navigate
-                  to={authType === "admin" ? "/main" : "/vote"}
+                  to={redirectTo || (authType === "admin" ? "/main" : "/vote")}
                   replace
                 />
               ) : (
-                <Login setAuthType={setAuthType} />
+                <Login setAuthType={setAuthType} key={authType} />
               )
             }
           />
@@ -53,20 +97,27 @@ function App() {
             path="/vote"
             element={
               authType === "user" ? (
-                <VotePage setAuthType={setAuthType} />
+                redirectTo === "/vote" ? (
+                  <VotePage setAuthType={setAuthType} />
+                ) : (
+                  <Navigate to={redirectTo} replace />
+                )
               ) : (
                 <Navigate to="/" replace />
               )
             }
           />
 
-          {/* Place the thank-you route above the wildcard route */}
+          <Route
+            path="/election-hold"
+            element={<ElectionHold setAuthType={setAuthType} />}
+          />
+
           <Route
             path="/thank-you"
             element={<ThankYouForm setAuthType={setAuthType} />}
           />
 
-          {/* Wildcard route for unmatched paths */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
