@@ -67,6 +67,10 @@ span {
 .login {
   text-align: center !important;
 }
+.loginModal {
+  display: flex;
+  flex-direction: column;
+}
 
 .confirmVote {
   display: flex;
@@ -102,4 +106,13 @@ span {
 
 .confirmTable {
   width: 420px;
+}
+
+.LCSClogo {
+  height: 350px;
+  position: absolute;
+  width: 350px;
+  /* top: -100px; */
+  left: 75px;
+  top: -320px;
 }

@@ -20,6 +20,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 // import TextField from "@mui/material/TextField";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import logo from "./LCSC.png";
+import "./Modals/login.css";
 // import Button from "@mui/material/Button";
 // import CloseIcon from "@mui/icons-material/Close";
 // import MenuItem from "@mui/material/MenuItem";
@@ -61,72 +63,79 @@ function Login({ setAuthType }) {
   };
 
   return (
-    <div className="modal">
-      <div className="modalContent login">
-        <div>
-          <h2 className="topLabel login">LOGIN FORM</h2>
+    <div>
+      <div></div>
+      <div className="modal loginModal">
+        <div className="modalContent login">
+          <div>
+            <h2 className="topLabel login">LOGIN FORM</h2>
+          </div>
+
+          <form onSubmit={handleLogin}>
+            <div>
+              <img
+                className="LCSClogo"
+                src={logo}
+                alt="LC Student Council Logo"
+              ></img>
+              <Box
+                component="form"
+                sx={{ "& .MuiTextField-root": { m: 1, width: "50ch" } }}
+                noValidate
+                autoComplete="off"
+              >
+                <div>
+                  <TextField
+                    label="Student Number"
+                    id="outlined-size-small"
+                    size="small"
+                    required
+                    value={studentNumber}
+                    onChange={(e) => setStudentNumber(e.target.value)}
+                    // required
+                  />
+                </div>
+              </Box>
+            </div>
+            <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
+              <InputLabel htmlFor="outlined-adornment-password">
+                Password
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Password"
+              />
+            </FormControl>
+            <div>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  backgroundColor: "#1ab394",
+                  marginTop: "10px",
+                }}
+              >
+                Login
+              </Button>
+            </div>
+          </form>
+          {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
-        <form onSubmit={handleLogin}>
-          <div>
-            <Box
-              component="form"
-              sx={{ "& .MuiTextField-root": { m: 1, width: "50ch" } }}
-              noValidate
-              autoComplete="off"
-            >
-              <div>
-                <TextField
-                  label="Student Number"
-                  id="outlined-size-small"
-                  size="small"
-                  required
-                  value={studentNumber}
-                  onChange={(e) => setStudentNumber(e.target.value)}
-                  // required
-                />
-              </div>
-            </Box>
-          </div>
-
-          <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Password
-            </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              label="Password"
-            />
-          </FormControl>
-
-          <div>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                backgroundColor: "#1ab394",
-                marginTop: "10px",
-              }}
-            >
-              Login
-            </Button>
-          </div>
-        </form>
-        {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
     </div>
 
